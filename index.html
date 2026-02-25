@@ -3,47 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Quiz with Corrections</title>
+    <title>Math Mastery: Multiples of 3</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; background-color: #f0f2f5; }
-        h2 { color: #333; }
-        table { border-collapse: collapse; width: 450px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        th, td { border-bottom: 1px solid #eee; padding: 15px; text-align: center; }
-        th { background-color: #6c5ce7; color: white; text-transform: uppercase; font-size: 0.9rem; }
-        input { width: 60px; padding: 8px; text-align: center; border: 2px solid #ddd; border-radius: 6px; font-size: 1rem; transition: all 0.3s; }
-        
-        /* Status Styles */
-        .correct { border-color: #2ecc71; background-color: #eafaf1; }
-        .incorrect { border-color: #e74c3c; background-color: #fdedec; }
-        .answer-reveal { color: #e74c3c; font-weight: bold; font-size: 0.9rem; display: none; }
-        
-        .button-container { margin-top: 25px; gap: 10px; display: flex; }
-        button { padding: 12px 24px; cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: opacity 0.2s; }
-        .btn-check { background-color: #00b894; color: white; }
-        .btn-reset { background-color: #0984e3; color: white; }
-        button:hover { opacity: 0.9; }
-        #feedback { margin-top: 20px; font-size: 1.1rem; color: #2d3436; }
+        :root {
+            --primary: #6c5ce7;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 { color: #2d3436; margin-bottom: 10px; }
+        p { color: #636e72; margin-bottom: 25px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        input {
+            width: 70px;
+            padding: 8px;
+            border: 2px solid #dfe6e9;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        /* Feedback States */
+        .correct { border-color: var(--success); background-color: #f1fef5; }
+        .incorrect { border-color: var(--error); background-color: #fff5f5; }
+
+        .correction-label {
+            display: block;
+            color: var(--error);
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 5px;
+            visibility: hidden; /* Hidden until checked */
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-check { background-color: var(--success); color: white; }
+        .btn-new { background-color: var(--primary); color: white; }
+
+        #score-display {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3436;
+        }
     </style>
 </head>
 <body>
 
-    <h2>Practice: Multiples of 3</h2>
-    <p>Range: 1x3 to 30x3</p>
+    <div class="container">
+        <h1>Multiplication Challenge</h1>
+        <p>Test your skills from 1x3 to 30x3</p>
 
-    <table id="quizTable">
-        <thead>
-            <tr>
-                <th>Question</th>
-                <th>Your Answer</th>
-                <th>Correction</th>
-            </tr>
-        </thead>
-        <tbody>
-            </tbody>
-    </table>
+        <table id="quizTable">
+            <thead>
+                <tr>
+                    <th>Problem</th>
+                    <th>Your Answer</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
 
-    <div id="feedback"></div>
+        <div class="btn-group">
+            <button class="btn-check" onclick="checkAnswers()">Check Answers</button>
+            <button class="btn-new" onclick="initQuiz()">New Questions</button>
+        </div>
 
-    <div class="button-container">
-        <button class="btn-check" onclick="checkAnswers()">Check Answers</button>
-        <button class="btn-reset" onclick="generateQuiz()">New Questions</button>
+        <div id="score-display"></div>
+    </div>
+
+    <script>
+        const MULTIPLIER = 3;
+        const MAX_RANGE = 30;
+        const NUM_QUESTIONS = 10; // Number of random rows to show
+
+        function initQuiz() {
+            const tbody = document.querySelector('#quizTable tbody');
+            const scoreDiv = document.getElementById('score-display');
+            tbody.innerHTML = '';
+            scoreDiv.textContent = '';
+
+            // Generate unique random multipliers
+            let selectedNumbers = [];
+            while(selectedNumbers.length < NUM_QUESTIONS) {
+                let rand = Math.floor(Math.random() * MAX_RANGE) + 1;
+                if(!selectedNumbers.includes(rand)) {
+                    selectedNumbers.push(rand);
+                }
+            }
+
+            // Create the rows
+            selectedNumbers.forEach(num => {
+                const correctAnswer = num * MULTIPLIER;
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td class="question-text">${num} &times; ${MULTIPLIER} =</td>
+                    <td>
+                        <input type="number" class="answer-input" data-correct="${correctAnswer}">
+                        <span class="correction-label">Ans: ${correctAnswer}</span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function checkAnswers() {
+            const rows = document.querySelectorAll('#quizTable tbody tr');
+            let correctCount = 0;
+
+            rows.forEach(row => {
+                const input = row.querySelector('.answer-input');
+                const correction = row.querySelector('.correction-label');
+                const userAnswer = parseInt(input.value);
+                const correctAnswer = parseInt(input.getAttribute('data-correct'));
+
+                if (userAnswer === correctAnswer) {
+                    input.className = 'answer-input correct';
+                    correction.style.visibility = 'hidden';
+                    correctCount++;
+                } else {
+                    input.className = 'answer-input incorrect';
+                    correction.style.visibility = 'visible'; // Show the answer if wrong
+                }
+            });
+
+            document.getElementById('score-display').textContent = 
+                `Final Score: ${correctCount} / ${NUM_QUESTIONS}`;
+        }
+
+        // Run on page load
+        window.onload = initQuiz;
+    </script>
+
+</body>
+</html>
