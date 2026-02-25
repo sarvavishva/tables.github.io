@@ -3,208 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Mastery: Multiples of 3</title>
+    <title>Math Flashcards: Multiples of 3</title>
     <style>
         :root {
             --primary: #6c5ce7;
             --success: #2ecc71;
             --error: #e74c3c;
-            --bg: #f8f9fa;
+            --text: #2d3436;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 40px 20px;
+            height: 100vh;
             margin: 0;
         }
 
-        .container {
+        .card {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             width: 100%;
+            max-width: 400px;
             text-align: center;
         }
 
-        h1 { color: #2d3436; margin-bottom: 10px; }
-        p { color: #636e72; margin-bottom: 25px; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .question-box {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--text);
             margin-bottom: 20px;
         }
 
-        th {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
-        }
-
-        .question-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2d3436;
-        }
-
         input {
-            width: 70px;
-            padding: 8px;
-            border: 2px solid #dfe6e9;
-            border-radius: 6px;
+            width: 100px;
+            padding: 12px;
+            font-size: 1.5rem;
             text-align: center;
-            font-size: 1rem;
+            border: 3px solid #dfe6e9;
+            border-radius: 10px;
             outline: none;
-            transition: all 0.2s;
+            transition: border-color 0.3s;
         }
 
         input:focus { border-color: var(--primary); }
 
-        /* Feedback States */
-        .correct { border-color: var(--success); background-color: #f1fef5; }
-        .incorrect { border-color: var(--error); background-color: #fff5f5; }
-
-        .correction-label {
-            display: block;
-            color: var(--error);
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-top: 5px;
-            visibility: hidden; /* Hidden until checked */
+        .feedback {
+            height: 60px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
         }
 
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
+        .correction {
+            color: var(--error);
+            display: block;
+            margin-top: 5px;
+        }
+
+        .btn-container {
+            margin-top: 20px;
         }
 
         button {
-            padding: 12px 25px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
             transition: transform 0.1s, opacity 0.2s;
         }
 
-        button:active { transform: scale(0.98); }
-
-        .btn-check { background-color: var(--success); color: white; }
-        .btn-new { background-color: var(--primary); color: white; }
-
-        #score-display {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #2d3436;
-        }
+        #submitBtn { background-color: var(--primary); color: white; }
+        #nextBtn { background-color: var(--success); color: white; display: none; }
+        
+        button:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Multiplication Challenge</h1>
-        <p>Test your skills from 1x3 to 30x3</p>
+    <div class="card">
+        <div id="stats" style="color: #636e72; margin-bottom: 10px;">Solved: 0</div>
+        <div class="question-box" id="question">? &times; 3</div>
+        
+        <input type="number" id="userAnswer" placeholder="?" autocomplete="off">
+        
+        <div class="feedback" id="feedback"></div>
 
-        <table id="quizTable">
-            <thead>
-                <tr>
-                    <th>Problem</th>
-                    <th>Your Answer</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
-
-        <div class="btn-group">
-            <button class="btn-check" onclick="checkAnswers()">Check Answers</button>
-            <button class="btn-new" onclick="initQuiz()">New Questions</button>
+        <div class="btn-container">
+            <button id="submitBtn" onclick="checkAnswer()">Check Answer</button>
+            <button id="nextBtn" onclick="newQuestion()">Next Question &rarr;</button>
         </div>
-
-        <div id="score-display"></div>
     </div>
 
     <script>
-        const MULTIPLIER = 3;
-        const MAX_RANGE = 30;
-        const NUM_QUESTIONS = 10; // Number of random rows to show
-
-        function initQuiz() {
-            const tbody = document.querySelector('#quizTable tbody');
-            const scoreDiv = document.getElementById('score-display');
-            tbody.innerHTML = '';
-            scoreDiv.textContent = '';
-
-            // Generate unique random multipliers
-            let selectedNumbers = [];
-            while(selectedNumbers.length < NUM_QUESTIONS) {
-                let rand = Math.floor(Math.random() * MAX_RANGE) + 1;
-                if(!selectedNumbers.includes(rand)) {
-                    selectedNumbers.push(rand);
-                }
-            }
-
-            // Create the rows
-            selectedNumbers.forEach(num => {
-                const correctAnswer = num * MULTIPLIER;
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td class="question-text">${num} &times; ${MULTIPLIER} =</td>
-                    <td>
-                        <input type="number" class="answer-input" data-correct="${correctAnswer}">
-                        <span class="correction-label">Ans: ${correctAnswer}</span>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function checkAnswers() {
-            const rows = document.querySelectorAll('#quizTable tbody tr');
-            let correctCount = 0;
-
-            rows.forEach(row => {
-                const input = row.querySelector('.answer-input');
-                const correction = row.querySelector('.correction-label');
-                const userAnswer = parseInt(input.value);
-                const correctAnswer = parseInt(input.getAttribute('data-correct'));
-
-                if (userAnswer === correctAnswer) {
-                    input.className = 'answer-input correct';
-                    correction.style.visibility = 'hidden';
-                    correctCount++;
-                } else {
-                    input.className = 'answer-input incorrect';
-                    correction.style.visibility = 'visible'; // Show the answer if wrong
-                }
-            });
-
-            document.getElementById('score-display').textContent = 
-                `Final Score: ${correctCount} / ${NUM_QUESTIONS}`;
-        }
-
-        // Run on page load
-        window.onload = initQuiz;
-    </script>
-
-</body>
-</html>
+        let currentMultiplier = 0;
+        let
