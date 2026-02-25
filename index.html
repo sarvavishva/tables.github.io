@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Table Quiz</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f4f7f6; }
+        table { border-collapse: collapse; width: 300px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #4CAF50; color: white; }
+        input { width: 50px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        .correct { background-color: #d4edda; border-color: #28a745; }
+        .incorrect { background-color: #f8d7da; border-color: #dc3545; }
+        button { margin-top: 20px; padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        #feedback { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Fill in the Blanks: Multiples of 3</h2>
+    <p>Solve these random problems from the 1x3 to 30x3 table!</p>
+
+    <table id="quizTable">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Your Answer</th>
+            </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <div id="feedback"></div>
+    <button onclick="checkAnswers()">Check Answers</button>
+    <button onclick="generateQuiz()">New Questions</button>
+
+    <script>
+        const multiplier = 3;
+        const maxRange = 30;
+        const numberOfQuestions = 5; // Change this to show more/less rows
+
+        function generateQuiz() {
+            const tbody = document.querySelector('#quizTable tbody');
+            const feedback = document.getElementById('feedback');
+            tbody.innerHTML = '';
+            feedback.textContent = '';
+
+            // Generate unique random numbers
+            let nums = [];
+            while(nums.length < numberOfQuestions){
+                let r = Math.floor(Math.random() * maxRange) + 1;
+                if(nums.indexOf(r) === -1) nums.push(r);
+            }
+
+            nums.forEach(num => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${num} &times; ${multiplier} = </td>
+                    <td><input type="number" data-answer="${num * multiplier}" class="user-input"></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function checkAnswers() {
+            const inputs = document.querySelectorAll('.user-input');
+            let correctCount = 0;
+
+            inputs.forEach(input => {
+                const userAnswer = parseInt(input.value);
+                const correctAnswer = parseInt(input.getAttribute('data-answer'));
+
+                if (userAnswer === correctAnswer) {
+                    input.className = 'user-input correct';
+                    correctCount++;
+                } else {
+                    input.className = 'user-input incorrect';
+                }
+            });
+
+            document.getElementById('feedback').textContent = 
+                `You got ${correctCount} out of ${numberOfQuestions} right!`;
+        }
+
+        // Initialize quiz on load
+        generateQuiz();
+    </script>
+</body>
+</html>
