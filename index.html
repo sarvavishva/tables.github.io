@@ -1,210 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Mastery: Multiples of 3</title>
-    <style>
-        :root {
-            --primary: #6c5ce7;
-            --success: #2ecc71;
-            --error: #e74c3c;
-            --bg: #f8f9fa;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplication Challenge - One by One</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-            margin: 0;
-        }
+<style>
+:root {
+    --primary:#6c5ce7;
+    --success:#2ecc71;
+    --error:#e74c3c;
+    --bg:#f8f9fa;
+}
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
+body{
+    font-family:Segoe UI;
+    background:var(--bg);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
 
-        h1 { color: #2d3436; margin-bottom: 10px; }
-        p { color: #636e72; margin-bottom: 25px; }
+.container{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    text-align:center;
+    width:350px;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
+h2{margin-bottom:20px;}
 
-        th {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-        }
+input{
+    width:100px;
+    padding:10px;
+    font-size:18px;
+    text-align:center;
+    border:2px solid #ddd;
+    border-radius:6px;
+}
 
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
-        }
+.correct{border-color:var(--success); background:#f1fef5;}
+.incorrect{border-color:var(--error); background:#fff5f5;}
 
-        .question-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2d3436;
-        }
+button{
+    margin-top:15px;
+    padding:10px 20px;
+    border:none;
+    border-radius:6px;
+    background:var(--primary);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
 
-        input {
-            width: 70px;
-            padding: 8px;
-            border: 2px solid #dfe6e9;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.2s;
-        }
+#result{
+    margin-top:15px;
+    font-weight:bold;
+}
 
-        input:focus { border-color: var(--primary); }
-
-        /* Feedback States */
-        .correct { border-color: var(--success); background-color: #f1fef5; }
-        .incorrect { border-color: var(--error); background-color: #fff5f5; }
-
-        .correction-label {
-            display: block;
-            color: var(--error);
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-top: 5px;
-            visibility: hidden; /* Hidden until checked */
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-
-        button:active { transform: scale(0.98); }
-
-        .btn-check { background-color: var(--success); color: white; }
-        .btn-new { background-color: var(--primary); color: white; }
-
-        #score-display {
-            margin-top: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #2d3436;
-        }
-    </style>
+#score{
+    margin-top:10px;
+}
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Multiplication Challenge</h1>
-        <p>Test your skills from 1x3 to 30x3</p>
+<div class="container">
+    <h2 id="question">Loading...</h2>
+    <input type="number" id="answer" autocomplete="off">
+    <br>
+    <button onclick="checkAnswer()">Submit</button>
+    <div id="result"></div>
+    <div id="score"></div>
+    <button onclick="resetGame()">Reset</button>
+</div>
 
-        <table id="quizTable">
-            <thead>
-                <tr>
-                    <th>Problem</th>
-                    <th>Your Answer</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
+<script>
+const MULTIPLIER = 3;
+const MAX_RANGE = 30;
 
-        <div class="btn-group">
-            <button class="btn-check" onclick="checkAnswers()">Check Answers</button>
-            <button class="btn-new" onclick="initQuiz()">New Questions</button>
-        </div>
+let currentNumber;
+let score = 0;
+let total = 0;
 
-        <div id="score-display"></div>
-    </div>
+function generateQuestion(){
+    currentNumber = Math.floor(Math.random()*MAX_RANGE)+1;
+    document.getElementById("question").innerText = 
+        currentNumber + " × " + MULTIPLIER + " = ?";
+    document.getElementById("answer").value = "";
+    document.getElementById("answer").className = "";
+    document.getElementById("result").innerText = "";
+    document.getElementById("answer").focus();
+}
 
-    <script>
-        const MULTIPLIER = 3;
-        const MAX_RANGE = 30;
-        const NUM_QUESTIONS = 10; // Number of random rows to show
+function checkAnswer(){
+    const userAnswer = parseInt(document.getElementById("answer").value);
+    const correctAnswer = currentNumber * MULTIPLIER;
+    total++;
 
-        function initQuiz() {
-            const tbody = document.querySelector('#quizTable tbody');
-            const scoreDiv = document.getElementById('score-display');
-            tbody.innerHTML = '';
-            scoreDiv.textContent = '';
+    if(userAnswer === correctAnswer){
+        score++;
+        document.getElementById("result").innerText = "Correct! 🎉";
+        document.getElementById("answer").className = "correct";
+    } else {
+        document.getElementById("result").innerText = 
+            "Wrong! Correct answer: " + correctAnswer;
+        document.getElementById("answer").className = "incorrect";
+    }
 
-            // Generate unique random multipliers
-            let selectedNumbers = [];
-            while(selectedNumbers.length < NUM_QUESTIONS) {
-                let rand = Math.floor(Math.random() * MAX_RANGE) + 1;
-                if(!selectedNumbers.includes(rand)) {
-                    selectedNumbers.push(rand);
-                }
-            }
+    document.getElementById("score").innerText =
+        "Score: " + score + " / " + total;
 
-            // Create the rows
-            selectedNumbers.forEach(num => {
-                const correctAnswer = num * MULTIPLIER;
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td class="question-text">${num} &times; ${MULTIPLIER} =</td>
-                    <td>
-                        <input type="number" class="answer-input" data-correct="${correctAnswer}">
-                        <span class="correction-label">Ans: ${correctAnswer}</span>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+    setTimeout(generateQuestion,1500);
+}
 
-        function checkAnswers() {
-            const rows = document.querySelectorAll('#quizTable tbody tr');
-            let correctCount = 0;
+function resetGame(){
+    score = 0;
+    total = 0;
+    document.getElementById("score").innerText = "";
+    document.getElementById("result").innerText = "";
+    generateQuestion();
+}
 
-            rows.forEach(row => {
-                const input = row.querySelector('.answer-input');
-                const correction = row.querySelector('.correction-label');
-                const userAnswer = parseInt(input.value);
-                const correctAnswer = parseInt(input.getAttribute('data-correct'));
-
-                if (userAnswer === correctAnswer) {
-                    input.className = 'answer-input correct';
-                    correction.style.visibility = 'hidden';
-                    correctCount++;
-                } else {
-                    input.className = 'answer-input incorrect';
-                    correction.style.visibility = 'visible'; // Show the answer if wrong
-                }
-            });
-
-            document.getElementById('score-display').textContent = 
-                `Final Score: ${correctCount} / ${NUM_QUESTIONS}`;
-        }
-
-        // Run on page load
-        window.onload = initQuiz;
-    </script>
+window.onload = generateQuestion;
+</script>
 
 </body>
 </html>
