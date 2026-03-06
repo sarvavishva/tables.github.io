@@ -1,23 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Math Practice</title>
 
 <style>
 
-:root{
---primary:#6c5ce7;
---success:#2ecc71;
---error:#e74c3c;
---bg:#f5f6fa;
-}
-
 body{
 font-family:Segoe UI;
-background:var(--bg);
+background:#f5f6fa;
 display:flex;
 justify-content:center;
 align-items:center;
@@ -31,18 +22,15 @@ padding:30px;
 border-radius:12px;
 box-shadow:0 10px 25px rgba(0,0,0,0.1);
 text-align:center;
-width:400px;
-max-width:95%;
+width:420px;
 }
 
 button{
-display:block;
-width:100%;
-margin:6px 0;
+margin:5px;
 padding:10px;
 border:none;
 border-radius:6px;
-background:var(--primary);
+background:#6c5ce7;
 color:white;
 font-weight:bold;
 cursor:pointer;
@@ -51,38 +39,23 @@ cursor:pointer;
 .grid{
 display:grid;
 grid-template-columns:repeat(5,1fr);
-gap:6px;
+gap:5px;
 }
 
 input{
-width:120px;
 padding:10px;
 font-size:18px;
 text-align:center;
-border:2px solid #ddd;
-border-radius:6px;
+width:120px;
 }
 
-.correct{
-border-color:var(--success);
-background:#f1fef5;
-}
+.correct{border:2px solid green;}
+.incorrect{border:2px solid red;}
 
-.incorrect{
-border-color:var(--error);
-background:#fff5f5;
-}
-
-.hidden{
-display:none;
-}
-
-#result,#score{
-margin-top:10px;
-font-weight:bold;
-}
+.hidden{display:none;}
 
 </style>
+
 </head>
 
 <body>
@@ -96,21 +69,34 @@ font-weight:bold;
 <h2>Select Practice</h2>
 
 <button onclick="chooseMode('table')">Tables</button>
-<button onclick="chooseMode('square')">Squares</button>
 <button onclick="chooseMode('cube')">Cubes</button>
+<button onclick="chooseMode('square')">Squares</button>
 
 </div>
 
 
-<!-- NUMBER SELECT -->
+<!-- NUMBER -->
 
 <div id="numberSelect" class="hidden">
 
-<h2 id="selectTitle"></h2>
+<h2>Select Number</h2>
 
 <div id="numberGrid" class="grid"></div>
 
-<button onclick="goHome()">Back</button>
+<button onclick="goMode()">Back</button>
+
+</div>
+
+
+<!-- SET -->
+
+<div id="setSelect" class="hidden">
+
+<h2>Select Set</h2>
+
+<div id="setButtons"></div>
+
+<button onclick="goNumbers()">Back</button>
 
 </div>
 
@@ -127,14 +113,12 @@ font-weight:bold;
 
 <button onclick="checkAnswer()">Submit</button>
 
-<button id="nextBtn" onclick="generateQuestion()" style="display:none">
-Next Question
-</button>
+<button id="nextBtn" onclick="generateQuestion()" style="display:none">Next</button>
 
 <div id="result"></div>
 <div id="score"></div>
 
-<button onclick="backToNumbers()">Change Number</button>
+<button onclick="goSets()">Change Set</button>
 
 </div>
 
@@ -145,8 +129,12 @@ Next Question
 let mode=""
 let selectedNumber=1
 
+let minRange=1
+let maxRange=10
+
 let score=0
 let total=0
+
 let randomNumber
 
 
@@ -157,21 +145,18 @@ mode=type
 document.getElementById("modeSelect").classList.add("hidden")
 document.getElementById("numberSelect").classList.remove("hidden")
 
-const grid=document.getElementById("numberGrid")
+let grid=document.getElementById("numberGrid")
 grid.innerHTML=""
 
 let limit=30
 
 if(mode==="square") limit=50
-if(mode==="cube") limit=30
-
-document.getElementById("selectTitle").innerText="Select Number"
 
 for(let i=1;i<=limit;i++){
 
 let btn=document.createElement("button")
 btn.innerText=i
-btn.onclick=function(){startGame(i)}
+btn.onclick=function(){chooseNumber(i)}
 
 grid.appendChild(btn)
 
@@ -180,14 +165,64 @@ grid.appendChild(btn)
 }
 
 
-function startGame(num){
+function chooseNumber(num){
 
 selectedNumber=num
+
+document.getElementById("numberSelect").classList.add("hidden")
+document.getElementById("setSelect").classList.remove("hidden")
+
+let container=document.getElementById("setButtons")
+container.innerHTML=""
+
+let sets=[]
+
+if(mode==="square"){
+
+sets=[
+[1,10],
+[11,20],
+[21,30],
+[31,40],
+[41,50]
+]
+
+}else{
+
+sets=[
+[1,10],
+[11,20],
+[21,30]
+]
+
+}
+
+sets.forEach(set=>{
+
+let btn=document.createElement("button")
+
+btn.innerText=set[0]+" - "+set[1]
+
+btn.onclick=function(){
+startGame(set[0],set[1])
+}
+
+container.appendChild(btn)
+
+})
+
+}
+
+
+function startGame(min,max){
+
+minRange=min
+maxRange=max
 
 score=0
 total=0
 
-document.getElementById("numberSelect").classList.add("hidden")
+document.getElementById("setSelect").classList.add("hidden")
 document.getElementById("quizArea").classList.remove("hidden")
 
 generateQuestion()
@@ -198,11 +233,10 @@ generateQuestion()
 function generateQuestion(){
 
 document.getElementById("answer").value=""
-document.getElementById("answer").className=""
 document.getElementById("result").innerText=""
 document.getElementById("nextBtn").style.display="none"
 
-randomNumber=Math.floor(Math.random()*10)+1
+randomNumber=Math.floor(Math.random()*(maxRange-minRange+1))+minRange
 
 if(mode==="table"){
 
@@ -211,17 +245,17 @@ selectedNumber+" × "+randomNumber+" = ?"
 
 }
 
-else if(mode==="square"){
-
-document.getElementById("question").innerText=
-selectedNumber+"² = ?"
-
-}
-
 else if(mode==="cube"){
 
 document.getElementById("question").innerText=
-selectedNumber+"³ = ?"
+randomNumber+"³ = ?"
+
+}
+
+else if(mode==="square"){
+
+document.getElementById("question").innerText=
+randomNumber+"² = ?"
 
 }
 
@@ -232,49 +266,36 @@ document.getElementById("answer").focus()
 
 function checkAnswer(){
 
-const userAnswer=parseInt(document.getElementById("answer").value)
+let user=parseInt(document.getElementById("answer").value)
 
-if(isNaN(userAnswer)){
+if(isNaN(user)){
 alert("Enter answer")
 return
 }
 
-let correctAnswer
+let correct
 
-if(mode==="table"){
-correctAnswer=selectedNumber*randomNumber
-}
-
-else if(mode==="square"){
-correctAnswer=selectedNumber*selectedNumber
-}
-
-else if(mode==="cube"){
-correctAnswer=selectedNumber*selectedNumber*selectedNumber
-}
+if(mode==="table") correct=selectedNumber*randomNumber
+if(mode==="cube") correct=randomNumber**3
+if(mode==="square") correct=randomNumber**2
 
 total++
 
-if(userAnswer===correctAnswer){
+if(user===correct){
 
 score++
 
 document.getElementById("result").innerText="Correct 🎉"
-document.getElementById("answer").className="correct"
 
 document.getElementById("score").innerText=
 "Score: "+score+" / "+total
 
 setTimeout(generateQuestion,800)
 
-}
-
-else{
+}else{
 
 document.getElementById("result").innerText=
-"Wrong! Correct answer: "+correctAnswer
-
-document.getElementById("answer").className="incorrect"
+"Wrong! Correct answer: "+correct
 
 document.getElementById("score").innerText=
 "Score: "+score+" / "+total
@@ -286,22 +307,27 @@ document.getElementById("nextBtn").style.display="inline-block"
 }
 
 
-function goHome(){
+function goMode(){
 
 document.getElementById("numberSelect").classList.add("hidden")
 document.getElementById("modeSelect").classList.remove("hidden")
 
 }
 
-function backToNumbers(){
+function goNumbers(){
 
-document.getElementById("quizArea").classList.add("hidden")
+document.getElementById("setSelect").classList.add("hidden")
 document.getElementById("numberSelect").classList.remove("hidden")
 
 }
 
+function goSets(){
 
-/* ENTER KEY */
+document.getElementById("quizArea").classList.add("hidden")
+document.getElementById("setSelect").classList.remove("hidden")
+
+}
+
 
 document.getElementById("answer").addEventListener("keydown",function(e){
 
