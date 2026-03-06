@@ -3,199 +3,320 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multiplication Challenge - 4 Sections</title>
+
+<title>Math Practice</title>
 
 <style>
-:root {
-    --primary:#6c5ce7;
-    --success:#2ecc71;
-    --error:#e74c3c;
-    --bg:#f8f9fa;
+
+:root{
+--primary:#6c5ce7;
+--success:#2ecc71;
+--error:#e74c3c;
+--bg:#f5f6fa;
 }
 
 body{
-    font-family:Segoe UI;
-    background:var(--bg);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
+font-family:Segoe UI;
+background:var(--bg);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
 }
 
 .container{
-    background:white;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.1);
-    text-align:center;
-    width:380px;
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+text-align:center;
+width:400px;
+max-width:95%;
 }
 
-h2{margin-bottom:15px;}
+button{
+display:block;
+width:100%;
+margin:6px 0;
+padding:10px;
+border:none;
+border-radius:6px;
+background:var(--primary);
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
 
-.section-btn{
-    display:block;
-    width:100%;
-    margin:8px 0;
-    padding:10px;
-    border:none;
-    border-radius:6px;
-    background:var(--primary);
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
+.grid{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:6px;
 }
 
 input{
-    width:120px;
-    padding:10px;
-    font-size:18px;
-    text-align:center;
-    border:2px solid #ddd;
-    border-radius:6px;
+width:120px;
+padding:10px;
+font-size:18px;
+text-align:center;
+border:2px solid #ddd;
+border-radius:6px;
 }
 
-.correct{border-color:var(--success); background:#f1fef5;}
-.incorrect{border-color:var(--error); background:#fff5f5;}
+.correct{
+border-color:var(--success);
+background:#f1fef5;
+}
 
-button{
-    margin-top:12px;
-    padding:10px 20px;
-    border:none;
-    border-radius:6px;
-    background:var(--primary);
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
+.incorrect{
+border-color:var(--error);
+background:#fff5f5;
+}
+
+.hidden{
+display:none;
 }
 
 #result,#score{
-    margin-top:10px;
-    font-weight:bold;
+margin-top:10px;
+font-weight:bold;
 }
 
-.hidden{display:none;}
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<!-- Section Selection -->
-<div id="sectionSelect">
-    <h2>Select Section</h2>
-    <button class="section-btn" onclick="startGame(1,10)">1 – 10</button>
-    <button class="section-btn" onclick="startGame(11,20)">11 – 20</button>
-    <button class="section-btn" onclick="startGame(21,30)">21 – 30</button>
-    <button class="section-btn" onclick="startGame(1,30)">1 – 30</button>
+<!-- MODE -->
+
+<div id="modeSelect">
+
+<h2>Select Practice</h2>
+
+<button onclick="chooseMode('table')">Tables</button>
+<button onclick="chooseMode('square')">Squares</button>
+<button onclick="chooseMode('cube')">Cubes</button>
+
 </div>
 
-<!-- Quiz Area -->
+
+<!-- NUMBER SELECT -->
+
+<div id="numberSelect" class="hidden">
+
+<h2 id="selectTitle"></h2>
+
+<div id="numberGrid" class="grid"></div>
+
+<button onclick="goHome()">Back</button>
+
+</div>
+
+
+<!-- QUIZ -->
+
 <div id="quizArea" class="hidden">
-    <h2 id="question"></h2>
 
-    <input type="number" id="answer" autocomplete="off">
-    <br>
+<h2 id="question"></h2>
 
-    <button onclick="checkAnswer()">Submit</button>
-    <button id="nextBtn" onclick="generateQuestion()" style="display:none;">
-        Next Question
-    </button>
+<input type="number" id="answer">
 
-    <div id="result"></div>
-    <div id="score"></div>
+<br>
 
-    <button onclick="goHome()">Change Section</button>
+<button onclick="checkAnswer()">Submit</button>
+
+<button id="nextBtn" onclick="generateQuestion()" style="display:none">
+Next Question
+</button>
+
+<div id="result"></div>
+<div id="score"></div>
+
+<button onclick="backToNumbers()">Change Number</button>
+
 </div>
 
 </div>
 
 <script>
-const MULTIPLIER = 3;
 
-let minRange = 1;
-let maxRange = 10;
-let currentNumber;
-let score = 0;
-let total = 0;
+let mode=""
+let selectedNumber=1
 
-function startGame(min,max){
-    minRange = min;
-    maxRange = max;
-    score = 0;
-    total = 0;
+let score=0
+let total=0
+let randomNumber
 
-    document.getElementById("sectionSelect").classList.add("hidden");
-    document.getElementById("quizArea").classList.remove("hidden");
 
-    generateQuestion();
+function chooseMode(type){
+
+mode=type
+
+document.getElementById("modeSelect").classList.add("hidden")
+document.getElementById("numberSelect").classList.remove("hidden")
+
+const grid=document.getElementById("numberGrid")
+grid.innerHTML=""
+
+let limit=30
+
+if(mode==="square") limit=50
+if(mode==="cube") limit=30
+
+document.getElementById("selectTitle").innerText="Select Number"
+
+for(let i=1;i<=limit;i++){
+
+let btn=document.createElement("button")
+btn.innerText=i
+btn.onclick=function(){startGame(i)}
+
+grid.appendChild(btn)
+
 }
+
+}
+
+
+function startGame(num){
+
+selectedNumber=num
+
+score=0
+total=0
+
+document.getElementById("numberSelect").classList.add("hidden")
+document.getElementById("quizArea").classList.remove("hidden")
+
+generateQuestion()
+
+}
+
 
 function generateQuestion(){
-    currentNumber = Math.floor(Math.random() * (maxRange - minRange + 1)) + minRange;
 
-    document.getElementById("question").innerText =
-        currentNumber + " × " + MULTIPLIER + " = ?";
+document.getElementById("answer").value=""
+document.getElementById("answer").className=""
+document.getElementById("result").innerText=""
+document.getElementById("nextBtn").style.display="none"
 
-    document.getElementById("answer").value="";
-    document.getElementById("answer").className="";
-    document.getElementById("result").innerText="";
-    document.getElementById("nextBtn").style.display="none";
-    document.getElementById("answer").focus();
+randomNumber=Math.floor(Math.random()*10)+1
+
+if(mode==="table"){
+
+document.getElementById("question").innerText=
+selectedNumber+" × "+randomNumber+" = ?"
+
 }
+
+else if(mode==="square"){
+
+document.getElementById("question").innerText=
+selectedNumber+"² = ?"
+
+}
+
+else if(mode==="cube"){
+
+document.getElementById("question").innerText=
+selectedNumber+"³ = ?"
+
+}
+
+document.getElementById("answer").focus()
+
+}
+
 
 function checkAnswer(){
-    const userAnswer = parseInt(document.getElementById("answer").value);
-    const correctAnswer = currentNumber * MULTIPLIER;
 
-    if(isNaN(userAnswer)){
-        alert("Please enter your answer!");
-        return;
-    }
+const userAnswer=parseInt(document.getElementById("answer").value)
 
-    total++;
-
-    if(userAnswer === correctAnswer){
-        score++;
-        document.getElementById("result").innerText="Correct! 🎉";
-        document.getElementById("answer").className="correct";
-
-        document.getElementById("score").innerText=
-            "Score: "+score+" / "+total;
-
-        setTimeout(generateQuestion,1000);
-    }
-    else{
-        document.getElementById("result").innerText=
-            "Wrong! Correct answer: "+correctAnswer;
-
-        document.getElementById("answer").className="incorrect";
-
-        document.getElementById("score").innerText=
-            "Score: "+score+" / "+total;
-
-        document.getElementById("nextBtn").style.display="inline-block";
-    }
+if(isNaN(userAnswer)){
+alert("Enter answer")
+return
 }
+
+let correctAnswer
+
+if(mode==="table"){
+correctAnswer=selectedNumber*randomNumber
+}
+
+else if(mode==="square"){
+correctAnswer=selectedNumber*selectedNumber
+}
+
+else if(mode==="cube"){
+correctAnswer=selectedNumber*selectedNumber*selectedNumber
+}
+
+total++
+
+if(userAnswer===correctAnswer){
+
+score++
+
+document.getElementById("result").innerText="Correct 🎉"
+document.getElementById("answer").className="correct"
+
+document.getElementById("score").innerText=
+"Score: "+score+" / "+total
+
+setTimeout(generateQuestion,800)
+
+}
+
+else{
+
+document.getElementById("result").innerText=
+"Wrong! Correct answer: "+correctAnswer
+
+document.getElementById("answer").className="incorrect"
+
+document.getElementById("score").innerText=
+"Score: "+score+" / "+total
+
+document.getElementById("nextBtn").style.display="inline-block"
+
+}
+
+}
+
 
 function goHome(){
-    document.getElementById("quizArea").classList.add("hidden");
-    document.getElementById("sectionSelect").classList.remove("hidden");
+
+document.getElementById("numberSelect").classList.add("hidden")
+document.getElementById("modeSelect").classList.remove("hidden")
+
 }
 
-/* 🔥 ENTER KEY SUPPORT */
-document.getElementById("answer").addEventListener("keydown", function(event){
-    if(event.key === "Enter"){
-        event.preventDefault();
+function backToNumbers(){
 
-        if(document.getElementById("nextBtn").style.display === "inline-block"){
-            generateQuestion();   // If wrong → go next
-        } else {
-            checkAnswer();        // Otherwise → submit
-        }
-    }
-});
+document.getElementById("quizArea").classList.add("hidden")
+document.getElementById("numberSelect").classList.remove("hidden")
+
+}
+
+
+/* ENTER KEY */
+
+document.getElementById("answer").addEventListener("keydown",function(e){
+
+if(e.key==="Enter"){
+
+if(document.getElementById("nextBtn").style.display==="inline-block"){
+generateQuestion()
+}else{
+checkAnswer()
+}
+
+}
+
+})
+
 </script>
 
 </body>
