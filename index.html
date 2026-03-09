@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <meta charset="UTF-8">
@@ -49,10 +50,9 @@ text-align:center;
 width:120px;
 }
 
-.correct{border:2px solid green;}
-.incorrect{border:2px solid red;}
-
-.hidden{display:none;}
+.hidden{
+display:none;
+}
 
 </style>
 
@@ -62,58 +62,41 @@ width:120px;
 
 <div class="container">
 
-<!-- MODE -->
+<!-- MODE SELECT -->
 
 <div id="modeSelect">
-
 <h2>Select Practice</h2>
-
 <button onclick="chooseMode('table')">Tables</button>
 <button onclick="chooseMode('cube')">Cubes</button>
 <button onclick="chooseMode('square')">Squares</button>
-
 </div>
 
-
-<!-- NUMBER -->
+<!-- NUMBER SELECT -->
 
 <div id="numberSelect" class="hidden">
-
 <h2>Select Number</h2>
-
 <div id="numberGrid" class="grid"></div>
-
 <button onclick="goMode()">Back</button>
-
 </div>
 
-
-<!-- SET -->
+<!-- SET SELECT -->
 
 <div id="setSelect" class="hidden">
-
 <h2>Select Set</h2>
-
 <div id="setButtons"></div>
-
 <button onclick="goNumbers()">Back</button>
-
 </div>
 
-
-<!-- QUIZ -->
+<!-- QUIZ AREA -->
 
 <div id="quizArea" class="hidden">
 
 <h2 id="question"></h2>
 
 <input type="number" id="answer">
-
 <br>
 
-<button onclick="checkAnswer()">Submit</button>
-
-<button id="nextBtn" onclick="generateQuestion()" style="display:none">Next</button>
+<button onclick="checkAnswer()">Submit</button> <button id="nextBtn" onclick="generateQuestion()" style="display:none">Next</button>
 
 <div id="result"></div>
 <div id="score"></div>
@@ -137,6 +120,10 @@ let total=0
 
 let randomNumber
 
+// shuffle system
+let questionPool=[]
+let poolIndex=0
+
 
 function chooseMode(type){
 
@@ -156,7 +143,10 @@ for(let i=1;i<=limit;i++){
 
 let btn=document.createElement("button")
 btn.innerText=i
-btn.onclick=function(){chooseNumber(i)}
+
+btn.onclick=function(){
+chooseNumber(i)
+}
 
 grid.appendChild(btn)
 
@@ -187,7 +177,8 @@ sets=[
 [41,50]
 ]
 
-}else{
+}
+else{
 
 sets=[
 [1,10],
@@ -222,6 +213,18 @@ maxRange=max
 score=0
 total=0
 
+// create number pool
+questionPool=[]
+
+for(let i=minRange;i<=maxRange;i++){
+questionPool.push(i)
+}
+
+// shuffle numbers
+questionPool.sort(()=>Math.random()-0.5)
+
+poolIndex=0
+
 document.getElementById("setSelect").classList.add("hidden")
 document.getElementById("quizArea").classList.remove("hidden")
 
@@ -236,7 +239,17 @@ document.getElementById("answer").value=""
 document.getElementById("result").innerText=""
 document.getElementById("nextBtn").style.display="none"
 
-randomNumber=Math.floor(Math.random()*(maxRange-minRange+1))+minRange
+if(poolIndex>=questionPool.length){
+
+// reshuffle again
+questionPool.sort(()=>Math.random()-0.5)
+poolIndex=0
+
+}
+
+randomNumber=questionPool[poolIndex]
+poolIndex++
+
 
 if(mode==="table"){
 
@@ -292,7 +305,8 @@ document.getElementById("score").innerText=
 
 setTimeout(generateQuestion,800)
 
-}else{
+}
+else{
 
 document.getElementById("result").innerText=
 "Wrong! Correct answer: "+correct
@@ -335,7 +349,8 @@ if(e.key==="Enter"){
 
 if(document.getElementById("nextBtn").style.display==="inline-block"){
 generateQuestion()
-}else{
+}
+else{
 checkAnswer()
 }
 
